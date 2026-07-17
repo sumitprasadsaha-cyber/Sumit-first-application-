@@ -54,13 +54,6 @@ export async function createNewUserAuth(email: string, password: string): Promis
   try {
     const cred = await createUserWithEmailAndPassword(secondaryAuth, email, password);
     const uid = cred.user.uid;
-    // We can also send email verification immediately to this new user!
-    try {
-      const { sendEmailVerification } = await import("firebase/auth");
-      await sendEmailVerification(cred.user);
-    } catch (verifErr) {
-      console.warn("Could not send immediate email verification from secondary instance:", verifErr);
-    }
     // Clean up secondary auth
     await secondaryAuth.signOut();
     return uid;

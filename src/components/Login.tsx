@@ -11,14 +11,11 @@ import {
   User, 
   KeyRound,
   Eye,
-  EyeOff,
-  RefreshCw
+  EyeOff
 } from "lucide-react";
 import { createNewUserAuth, getFirebaseAuth, getFirebaseDb } from "../lib/firebase";
 import { 
   signInWithEmailAndPassword, 
-  sendPasswordResetEmail,
-  sendEmailVerification,
   updatePassword
 } from "firebase/auth";
 import { doc, updateDoc } from "firebase/firestore";
@@ -35,25 +32,18 @@ interface LoginProps {
 }
 
 export default function Login({ onLoginSuccess, onInstitutionNameLoaded }: LoginProps) {
-  const [mode, setMode] = useState<"Login" | "ForgotPassword" | "ForceChangePassword">("Login");
+  const [mode, setMode] = useState<"Login" | "ForceChangePassword">("Login");
   
   // Login form fields
   const [emailVal, setEmailVal] = useState("");
   const [passwordVal, setPasswordVal] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  // Forgot password field
-  const [forgotEmail, setForgotEmail] = useState("");
-
   // Force Change Password fields
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [forceChangeUser, setForceChangeUser] = useState<any>(null);
   const [forceChangeUserDoc, setForceChangeUserDoc] = useState<any>(null);
-
-  // Email verification helper state
-  const [unverifiedUser, setUnverifiedUser] = useState<any>(null);
-  const [resendLoading, setResendLoading] = useState(false);
 
   // Status indicators
   const [loading, setLoading] = useState(false);
@@ -127,7 +117,6 @@ export default function Login({ onLoginSuccess, onInstitutionNameLoaded }: Login
     e.preventDefault();
     setError("");
     setSuccess("");
-    setUnverifiedUser(null);
 
     const emailInput = emailVal.trim().toLowerCase();
 
@@ -148,16 +137,7 @@ export default function Login({ onLoginSuccess, onInstitutionNameLoaded }: Login
       const userCredential = await signInWithEmailAndPassword(auth, emailInput, passwordVal);
       const user = userCredential.user;
 
-      // 3. Email verification enforcement (Bypass for fixed admin sumitprasadsaha@gmail.com)
-      if (!user.emailVerified && user.email !== "sumitprasadsaha@gmail.com") {
-        setUnverifiedUser(user);
-        setError("Please verify your email before signing in.");
-        await auth.signOut();
-        setLoading(false);
-        return;
-      }
-
-      // 4. Fetch the user document from Firestore using the Authentication UID
+      // 3. Fetch the user document from Firestore using the Authentication UID
       let userDoc = await getUserDocument(user.uid);
 
       if (!userDoc) {
@@ -208,55 +188,6 @@ export default function Login({ onLoginSuccess, onInstitutionNameLoaded }: Login
         errMsg = "Too many login attempts. Access temporarily locked. Try resetting your password.";
       } else if (err.message) {
         errMsg = err.message;
-      }
-      setError(errMsg);
-      setLoading(false);
-    }
-  };
-
-  // Resend verification email
-  const handleResendVerification = async () => {
-    if (!unverifiedUser) return;
-    setResendLoading(true);
-    try {
-      await sendEmailVerification(unverifiedUser);
-      setSuccess("A verification link has been resent to your email address!");
-      setError("");
-    } catch (err: any) {
-      setError(err.message || "Failed to resend verification link.");
-    } finally {
-      setResendLoading(false);
-    }
-  };
-
-  // Handle Password Reset Request
-  const handleForgotPassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setSuccess("");
-
-    if (!forgotEmail.trim()) {
-      setError("Please enter your registered email address.");
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const auth = await getFirebaseAuth();
-      if (!auth) {
-        throw new Error("Authentication system is offline.");
-      }
-
-      await sendPasswordResetEmail(auth, forgotEmail.trim());
-      setSuccess("Password reset email sent successfully. Please check your inbox!");
-      setForgotEmail("");
-      setLoading(false);
-    } catch (err: any) {
-      console.error("Password reset error:", err);
-      let errMsg = err.message || "Failed to submit password reset request.";
-      if (err.code === "auth/user-not-found") {
-        errMsg = "No account found associated with this email address.";
       }
       setError(errMsg);
       setLoading(false);
@@ -368,23 +299,10 @@ export default function Login({ onLoginSuccess, onInstitutionNameLoaded }: Login
 
           {/* Field: Password */}
           <div className="flex flex-col gap-1.5">
-            <div className="flex justify-between items-center">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                <Lock className="w-3.5 h-3.5 text-blue-500" />
-                Password
-              </label>
-              <button
-                type="button"
-                onClick={() => {
-                  setMode("ForgotPassword");
-                  setError("");
-                  setSuccess("");
-                }}
-                className="text-[10px] font-bold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
-              >
-                Forgot Password?
-              </button>
-            </div>
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+              <Lock className="w-3.5 h-3.5 text-blue-500" />
+              Password
+            </label>
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
@@ -409,23 +327,10 @@ export default function Login({ onLoginSuccess, onInstitutionNameLoaded }: Login
           </div>
 
           {error && (
-            <div className="flex flex-col gap-2">
-              <span className="text-[11px] text-rose-500 font-extrabold flex items-start gap-1.5 animate-fadeIn leading-relaxed">
-                <ShieldAlert className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-                <span>{error}</span>
-              </span>
-              {unverifiedUser && (
-                <button
-                  type="button"
-                  onClick={handleResendVerification}
-                  disabled={resendLoading}
-                  className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline text-left pl-5 cursor-pointer flex items-center gap-1"
-                >
-                  {resendLoading ? <RefreshCw className="w-3 h-3 animate-spin" /> : null}
-                  Resend Verification Email
-                </button>
-              )}
-            </div>
+            <span className="text-[11px] text-rose-500 font-extrabold flex items-start gap-1.5 animate-fadeIn leading-relaxed">
+              <ShieldAlert className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+              <span>{error}</span>
+            </span>
           )}
 
           {success && (
@@ -452,81 +357,6 @@ export default function Login({ onLoginSuccess, onInstitutionNameLoaded }: Login
               </>
             )}
           </button>
-        </form>
-      )}
-
-      {/* FORGOT PASSWORD MODE */}
-      {mode === "ForgotPassword" && (
-        <form onSubmit={handleForgotPassword} className="flex flex-col gap-4 animate-fadeIn" id="forgot-password-form">
-          <div className="p-3 bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400 border border-slate-150 dark:border-slate-850 rounded-xl text-xs font-semibold leading-relaxed">
-            Please supply your registered email address. A secure recovery link will be sent to restore account access.
-          </div>
-
-          {/* Field: Forgot Email */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-              <Mail className="w-3.5 h-3.5 text-blue-500" />
-              Registered Email Address
-            </label>
-            <input
-              type="email"
-              placeholder=""
-              value={forgotEmail}
-              onChange={(e) => {
-                setForgotEmail(e.target.value);
-                setError("");
-              }}
-              className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-800 dark:text-slate-100 placeholder-slate-400 text-sm font-semibold transition-all focus:outline-hidden focus:ring-2 focus:ring-blue-500/10 h-[46px]"
-              required
-              disabled={loading}
-            />
-          </div>
-
-          {error && (
-            <span className="text-[11px] text-rose-500 font-extrabold flex items-center gap-1.5 animate-fadeIn leading-relaxed">
-              <ShieldAlert className="w-3.5 h-3.5 shrink-0" />
-              {error}
-            </span>
-          )}
-
-          {success && (
-            <span className="text-[11px] text-emerald-500 font-extrabold flex items-center gap-1.5 animate-fadeIn leading-relaxed">
-              <UserCheck className="w-3.5 h-3.5 shrink-0" />
-              {success}
-            </span>
-          )}
-
-          <div className="flex flex-col gap-2.5 mt-1">
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3.5 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold rounded-xl flex items-center justify-center gap-2 shadow-md shadow-blue-500/10 transition-all cursor-pointer text-xs uppercase tracking-wider h-[46px]"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Requesting Reset...</span>
-                </>
-              ) : (
-                <>
-                  <span>Send Reset Email</span>
-                  <ArrowRight className="w-4 h-4" />
-                </>
-              )}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setMode("Login");
-                setError("");
-                setSuccess("");
-              }}
-              className="text-xs font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 py-1 cursor-pointer text-center"
-            >
-              Back to Login
-            </button>
-          </div>
         </form>
       )}
 

@@ -23,7 +23,11 @@ import {
   TrendingUp,
   FileText,
   Save,
-  Plus
+  Plus,
+  Mail,
+  KeyRound,
+  Eye,
+  EyeOff
 } from "lucide-react";
 import { jsPDF } from "jspdf";
 import { Student } from "../types";
@@ -122,6 +126,7 @@ export default function StudentDetails({
 }: StudentDetailsProps) {
   const [activeTab, setActiveTab] = useState<"Profile" | "Progress" | "Attendance" | "Subjects" | "Fee">("Profile");
   const [institutionName, setInstitutionName] = useState("Ingenious Study Circle");
+  const [showStudentPassword, setShowStudentPassword] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -746,6 +751,40 @@ export default function StudentDetails({
                 <div className="flex flex-col">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Class / Grade</span>
                   <span className="text-slate-800 dark:text-slate-100 font-bold text-sm mt-0.5">{student.classGrade}</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3.5 p-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-3xs">
+                <div className="p-2 bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 rounded-xl">
+                  <Mail className="w-4 h-4" />
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Email Address</span>
+                  <span className="text-slate-800 dark:text-slate-100 font-semibold text-sm mt-0.5 truncate">
+                    {student.email || "Not provided"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3.5 p-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-3xs">
+                <div className="p-2 bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 rounded-xl">
+                  <KeyRound className="w-4 h-4" />
+                </div>
+                <div className="flex flex-1 items-center gap-2 min-w-0">
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Password</span>
+                    <span className="text-slate-800 dark:text-slate-100 font-semibold text-sm mt-0.5">
+                      {showStudentPassword ? (student.password || "••••••••") : "••••••••"}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowStudentPassword((prev) => !prev)}
+                    className="ml-auto p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
+                    aria-label={showStudentPassword ? "Hide password" : "Show password"}
+                  >
+                    {showStudentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
                 </div>
               </div>
 

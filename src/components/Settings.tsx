@@ -255,22 +255,6 @@ export default function Settings({
     }
   };
 
-  const handleResetPassword = async (email: string) => {
-    try {
-      const { sendPasswordResetEmail } = await import("firebase/auth");
-      const authInstance = await getFirebaseAuth();
-      if (authInstance) {
-        await sendPasswordResetEmail(authInstance, email);
-        triggerNotification(`Password reset email sent to ${email} successfully!`);
-      } else {
-        throw new Error("Auth instance not found");
-      }
-    } catch (err: any) {
-      console.error(err);
-      triggerNotification(`Failed to send password reset: ${err.message || err}`, true);
-    }
-  };
-
   // States for state-based inline modal confirmations
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [showRemoveQrConfirm, setShowRemoveQrConfirm] = useState(false);
@@ -992,14 +976,6 @@ export default function Settings({
                             title={adminItem.active ? "Deactivate Account" : "Activate Account"}
                           >
                             {adminItem.active ? "Disable" : "Enable"}
-                          </button>
-
-                          <button
-                            onClick={() => handleResetPassword(adminItem.email)}
-                            className="p-1.5 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer"
-                            title="Send Password Reset Email"
-                          >
-                            Reset
                           </button>
 
                           <button
