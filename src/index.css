@@ -1,0 +1,170 @@
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --animate-fadeIn: fadeIn 0.2s ease-out;
+  --animate-slideUp: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(12px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+}
+
+/* Base Theme Config */
+:root {
+  --color-bg-primary: #f8fafc;
+  --color-bg-secondary: #ffffff;
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #475569;
+  --color-text-muted: #94a3b8;
+  --color-border: #e2e8f0;
+  
+  --color-blue-primary: #2563eb;
+  --color-blue-hover: #1d4ed8;
+  --color-blue-light: #eff6ff;
+  --color-blue-gradient: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+}
+
+/* Dark Mode override */
+.dark {
+  --color-bg-primary: #090d16;
+  --color-bg-secondary: #111827;
+  --color-text-primary: #f8fafc;
+  --color-text-secondary: #94a3b8;
+  --color-text-muted: #4b5563;
+  --color-border: #1f2937;
+  
+  --color-blue-primary: #3b82f6;
+  --color-blue-hover: #60a5fa;
+  --color-blue-light: #1e293b;
+  --color-blue-gradient: linear-gradient(135deg, #1d4ed8 0%, #0c0a0f 100%);
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+}
+
+/* Custom styles mapped to variables */
+body {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* --- Multicolour Gradient Themes --- */
+.theme-sunset {
+  --color-bg-primary: #1e0b11;
+  --color-bg-secondary: #270f17;
+  --color-border: #4a1c2b;
+  --color-text-primary: #fee2e6;
+  --color-text-secondary: #fda4af;
+  --color-text-muted: #f43f5e;
+  --color-blue-primary: #f43f5e;
+  --color-blue-hover: #fb7185;
+  --color-blue-light: #4c0519;
+}
+
+.theme-ocean {
+  --color-bg-primary: #04101e;
+  --color-bg-secondary: #081d33;
+  --color-border: #113456;
+  --color-text-primary: #e0f2fe;
+  --color-text-secondary: #7dd3fc;
+  --color-text-muted: #06b6d4;
+  --color-blue-primary: #06b6d4;
+  --color-blue-hover: #22d3ee;
+  --color-blue-light: #082f49;
+}
+
+.theme-neon {
+  --color-bg-primary: #03140d;
+  --color-bg-secondary: #062419;
+  --color-border: #114c33;
+  --color-text-primary: #d1fae5;
+  --color-text-secondary: #6ee7b7;
+  --color-text-muted: #10b981;
+  --color-blue-primary: #10b981;
+  --color-blue-hover: #34d399;
+  --color-blue-light: #064e3b;
+}
+
+.theme-cosmic {
+  --color-bg-primary: #0d061c;
+  --color-bg-secondary: #170b2e;
+  --color-border: #361b68;
+  --color-text-primary: #f3e8ff;
+  --color-text-secondary: #c084fc;
+  --color-text-muted: #a855f7;
+  --color-blue-primary: #a855f7;
+  --color-blue-hover: #c084fc;
+  --color-blue-light: #3b0764;
+}
+
+/* Outer shell background gradients */
+.theme-sunset#app-shell {
+  background-image: linear-gradient(135deg, #f43f5e 0%, #f97316 50%, #e11d48 100%) !important;
+}
+.theme-ocean#app-shell {
+  background-image: linear-gradient(135deg, #0284c7 0%, #06b6d4 50%, #0f766e 100%) !important;
+}
+.theme-neon#app-shell {
+  background-image: linear-gradient(135deg, #059669 0%, #10b981 50%, #15803d 100%) !important;
+}
+.theme-cosmic#app-shell {
+  background-image: linear-gradient(135deg, #4f46e5 0%, #a855f7 50%, #db2777 100%) !important;
+}
+
+/* Inner frame custom gradient background overrides */
+.theme-sunset #main-frame {
+  background-image: linear-gradient(to bottom, #1e0b11, #0f0508) !important;
+  background-color: #1e0b11 !important;
+}
+.theme-ocean #main-frame {
+  background-image: linear-gradient(to bottom, #04101e, #02070f) !important;
+  background-color: #04101e !important;
+}
+.theme-neon #main-frame {
+  background-image: linear-gradient(to bottom, #03140d, #010805) !important;
+  background-color: #03140d !important;
+}
+.theme-cosmic #main-frame {
+  background-image: linear-gradient(to bottom, #0d061c, #05020a) !important;
+  background-color: #0d061c !important;
+}
+
+#main-content-scroll::-webkit-scrollbar {
+  width: 5px;
+}
+
+#main-content-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#main-content-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 9999px;
+}
+
+/* Animation utilities */
+.animate-fadeIn {
+  animation: var(--animate-fadeIn);
+}
+
+.animate-slideUp {
+  animation: var(--animate-slideUp);
+}
